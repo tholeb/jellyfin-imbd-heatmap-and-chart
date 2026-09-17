@@ -42,6 +42,35 @@ jobs:
           PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${ZIP_NAME}"
           jprm repo add . "$ZIP_FILE" --plugin-url "$PLUGIN_URL"
 
+      - name: Expand targetABIs for Jellyfin 10.11.X, 10.12.X, and 12.X
+        run: |
+          python3 -c "
+          import json
+
+          TARGET_ABIS = ['10.12.0.0', '10.11.0.0', '12.0.0.0']
+
+          with open('manifest.json', 'r') as f:
+              manifest = json.load(f)
+
+          for plugin in manifest:
+              new_versions = []
+              seen = set()
+              for v in plugin.get('versions', []):
+                  ver_num = v['version']
+                  source_url = v['sourceUrl']
+                  for abi in TARGET_ABIS:
+                      key = (ver_num, abi, source_url)
+                      if key not in seen:
+                          seen.add(key)
+                          v_copy = dict(v)
+                          v_copy['targetAbi'] = abi
+                          new_versions.append(v_copy)
+              plugin['versions'] = new_versions
+
+          with open('manifest.json', 'w') as f:
+              json.dump(manifest, f, indent=4)
+          "
+
       - name: Clean up artifacts
         run: rm -rf artifacts
 
