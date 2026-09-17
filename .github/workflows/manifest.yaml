@@ -26,20 +26,35 @@ jobs:
       - name: Install JPRM
         run: pip install jprm
 
+      - name: Parse Version from Git Tag
+        id: parse_version
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          if [ -z "$TAG_NAME" ]; then
+            TAG_NAME="v1.0.1"
+          fi
+          VERSION_NUM="${TAG_NAME#v}"
+          DOT_COUNT=$(echo "$VERSION_NUM" | tr -cd '.' | wc -c)
+          if [ "$DOT_COUNT" -eq 2 ]; then
+            CLEAN_VERSION="${VERSION_NUM}.0"
+          elif [ "$DOT_COUNT" -eq 1 ]; then
+            CLEAN_VERSION="${VERSION_NUM}.0.0"
+          else
+            CLEAN_VERSION="$VERSION_NUM"
+          fi
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "clean_version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+
       - name: Build Plugin Zip
         run: |
           mkdir -p artifacts
-          jprm plugin build .
+          jprm plugin build . -v "${{ steps.parse_version.outputs.clean_version }}"
 
       - name: Update manifest.json with JPRM
         run: |
           ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          if [ -z "$TAG_NAME" ]; then
-            TAG_NAME="v1.0.0.0"
-          fi
           ZIP_NAME=$(basename "$ZIP_FILE")
-          PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${ZIP_NAME}"
+          PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${{ steps.parse_version.outputs.tag_name }}/${ZIP_NAME}"
           jprm repo add . "$ZIP_FILE" --plugin-url "$PLUGIN_URL"
 
       - name: Expand targetABIs for Jellyfin 10.11.X, 10.12.X, and 12.X
@@ -80,4 +95,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add manifest.json
           git status
-          git diff-index --quiet HEAD || (git commit -m "chore: update plugin manifest for release ${TAG_NAME}" && git push origin master)
+          git diff-index --quiet HEAD || (git commit -m "chore: update plugin manifest for release ${{ steps.parse_version.outputs.tag_name }}" && git push origin master)
