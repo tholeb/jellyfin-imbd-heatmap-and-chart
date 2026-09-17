@@ -1,0 +1,254 @@
+[data-jf-ieg-root="1"] {
+    --c1: 2.72rem;
+    --c2: 3.05rem;
+    --rh: 2.36rem;
+    --axis: rgba(34, 34, 40, 0.84);
+    --axis2: rgba(48, 48, 56, 0.90);
+    margin: 0.85em 0 1.1em;
+    position: relative;
+    z-index: 3;
+    clear: both;
+    width: 100%;
+    max-width: calc(100% - 3.15rem);
+}
+
+.jf-ieg-box {
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(18, 18, 18, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.jf-ieg-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    border: 0;
+    margin: 0;
+    padding: 0.72rem 0.95rem;
+    cursor: pointer;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.03);
+    text-align: left;
+    font: inherit;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.jf-ieg-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.jf-ieg-toggle-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.jf-ieg-toggle-icon {
+    transition: transform 0.16s ease;
+    opacity: 0.92;
+    flex: 0 0 auto;
+}
+
+.jf-ieg-toggle[aria-expanded="true"] .jf-ieg-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.jf-ieg-panel {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.09);
+    overflow: hidden;
+}
+
+.jf-ieg-panel[hidden] {
+    display: none !important;
+}
+
+.jf-ieg-body {
+    padding: 0.72rem 0.82rem 0.82rem;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.jf-ieg-status {
+    font-size: 0.92rem;
+    opacity: 0.9;
+    padding: 0.15rem 0.05rem;
+}
+
+.jf-ieg-link {
+    color: inherit !important;
+    text-decoration: none !important;
+    font-weight: 700;
+}
+
+.jf-ieg-tabs {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.4rem;
+}
+
+.jf-ieg-tab-btn {
+    background: 0 0;
+    border: 0;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    transition: color 0.2s;
+}
+
+.jf-ieg-tab-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.jf-ieg-tab-btn.active {
+    color: #fff;
+    border-bottom: 2px solid #10b981;
+}
+
+.jf-ieg-tab-content[hidden] {
+    display: none !important;
+}
+
+/* Hover & Inspect Tooltip Popover */
+#jf-hover-tooltip {
+    position: fixed;
+    z-index: 99999;
+    background: rgba(15, 15, 15, 0.95);
+    color: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    display: none;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+#jf-hover-tooltip.has-actions,
+#jf-hover-tooltip.interactive {
+    pointer-events: auto !important;
+}
+
+#jf-hover-tooltip.visible {
+    opacity: 1;
+    display: block;
+}
+
+.jf-tooltip-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.jf-tooltip-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.jf-tooltip-title {
+    font-size: 1.1em;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: #fff;
+    line-height: 1.25;
+    padding-right: 22px;
+}
+
+.jf-tooltip-meta {
+    font-size: 0.8em;
+    color: #10b981;
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.jf-tooltip-sep {
+    color: #666;
+    margin: 0 5px;
+}
+
+.jf-tooltip-overview {
+    font-size: 0.85em;
+    line-height: 1.5;
+    color: #d1d5db;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.jf-tooltip-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.jf-tooltip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #10b981 !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    border: none !important;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.jf-tooltip-btn:hover {
+    background: #059669 !important;
+}
+
+@media (max-width: 900px) {
+    [data-jf-ieg-root="1"] {
+        max-width: calc(100% - 0.4rem);
+    }
+    .jf-ieg-body {
+        padding: 0.72rem 0.42rem 0.82rem 0.42rem !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #jf-hover-tooltip {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 16px !important;
+        top: auto !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.9) !important;
+        pointer-events: auto !important;
+    }
+}

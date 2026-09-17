@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>Jellyfin.Plugin.Template</RootNamespace>
+    <RootNamespace>Jellyfin.Plugin.ImdbHeatmap</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
@@ -10,10 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.11.5" >
+    <PackageReference Include="Jellyfin.Controller" Version="10.11.5">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Jellyfin.Model" Version="10.11.5">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
@@ -25,8 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Configuration\configPage.html" />
-    <EmbeddedResource Include="Configuration\configPage.html" />
+    <None Remove="Configuration\**\*" />
+    <EmbeddedResource Include="Configuration\**\*" />
+    <None Remove="Localization\*.json" />
+    <EmbeddedResource Include="Localization\*.json" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,54 @@
+name: '📜 Update Plugin Manifest'
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install JPRM
+        run: pip install jprm
+
+      - name: Build Plugin Zip
+        run: |
+          mkdir -p artifacts
+          jprm plugin build .
+
+      - name: Update manifest.json with JPRM
+        run: |
+          ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          if [ -z "$TAG_NAME" ]; then
+            TAG_NAME="v1.0.0.0"
+          fi
+          ZIP_NAME=$(basename "$ZIP_FILE")
+          PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${ZIP_NAME}"
+          jprm repo add . "$ZIP_FILE" --plugin-url "$PLUGIN_URL"
+
+      - name: Clean up artifacts
+        run: rm -rf artifacts
+
+      - name: Commit and Push manifest.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git status
+          git diff-index --quiet HEAD || (git commit -m "chore: update plugin manifest for release ${TAG_NAME}" && git push origin master)

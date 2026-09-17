@@ -1,0 +1,71 @@
+.jf-ieg-chart-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.jf-ieg-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 0.35rem;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.jf-ieg-legend-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 0.25rem 0.55rem;
+    color: rgba(255, 255, 255, 0.9);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+    user-select: none;
+}
+
+.jf-ieg-legend-btn:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.jf-ieg-legend-btn.inactive {
+    opacity: 0.38;
+    text-decoration: line-through;
+    background: rgba(0, 0, 0, 0.20);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.jf-ieg-legend-icon {
+    display: block;
+    width: 36px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
+.jf-ieg-chart-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    max-width: 100%;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 0.4rem 0.2rem;
+}
+
+.jf-ieg-chart-inner {
+    height: 420px;
+    min-width: 100%;
+    position: relative;
+}

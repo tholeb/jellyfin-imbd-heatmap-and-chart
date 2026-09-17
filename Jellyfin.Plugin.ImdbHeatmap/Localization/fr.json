@@ -1,0 +1,18 @@
+{
+  "Title": "Grille des épisodes IMDb",
+  "Grid": "Grille",
+  "Chart": "Graphique",
+  "Season": "Saison",
+  "SeasonShort": "S",
+  "EpisodeShort": "E",
+  "EpisodeCumulative": "Épisode (Cumulé)",
+  "ImdbRating": "Note IMDb",
+  "Average": "Moy",
+  "Trend": "Tendance",
+  "GlobalTrend": "Tendance Globale",
+  "InvertAxes": "Inverser les axes de la grille",
+  "NoSynopsis": "Aucun synopsis disponible.",
+  "Loading": "Chargement...",
+  "ViewEpisode": "Voir l'épisode",
+  "OpenOnImdb": "Ouvrir sur IMDb"
+}

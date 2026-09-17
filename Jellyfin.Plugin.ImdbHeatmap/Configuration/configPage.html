@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>IMDb Heatmap &amp; Chart Configuration</title>
+</head>
+<body>
+    <div id="ImdbHeatmapConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="ImdbHeatmapConfigForm">
+                    <h2 class="sectionTitle">IMDb Heatmap &amp; Chart Settings</h2>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="EnableHeatmap" name="EnableHeatmap" type="checkbox" is="emby-checkbox" />
+                            <span>Enable IMDb Ratings Heatmap Grid</span>
+                        </label>
+                        <div class="fieldDescription">Displays an interactive season/episode rating matrix on TV series pages.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="EnableChart" name="EnableChart" type="checkbox" is="emby-checkbox" />
+                            <span>Enable Episode Rating Chart</span>
+                        </label>
+                        <div class="fieldDescription">Displays a cumulative episode note chart with season and series trendlines.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="InvertGridDefault" name="InvertGridDefault" type="checkbox" is="emby-checkbox" />
+                            <span>Invert Grid Axes by Default</span>
+                        </label>
+                        <div class="fieldDescription">Swaps seasons and episodes on the heatmap grid by default.</div>
+                    </div>
+
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="Language">Display Language / Langue</label>
+                        <select is="emby-select" id="Language" name="Language" class="emby-select-withcolor emby-select">
+                            <option value="auto">Auto-detect (Browser / Client)</option>
+                            <option value="en">English (EN)</option>
+                            <option value="fr">Français (FR)</option>
+                        </select>
+                        <div class="fieldDescription">Select user interface language for ratings grid and charts.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="CacheTtlHours">Dataset Cache TTL (Hours)</label>
+                        <input id="CacheTtlHours" name="CacheTtlHours" type="number" is="emby-input" min="1" max="168" />
+                        <div class="fieldDescription">How long fetched IMDb episode dataset ratings are cached in browser session storage.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="DatasetBaseUrl">Dataset CDN Base URL</label>
+                        <input id="DatasetBaseUrl" name="DatasetBaseUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">Base URL to fetch IMDb episode JSON datasets (e.g. GitHub CDN).</div>
+                    </div>
+
+                    <br/>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save Configuration</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 2em; padding: 1em; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                    <h3>Web Client Integration</h3>
+                    <p>If <strong>JS Injector</strong> (Jellyfin JavaScript Injector) is installed, script injection is handled automatically! Otherwise, add the following to <strong>Dashboard &gt; General &gt; Custom JavaScript code</strong>:</p>
+                    <pre style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 6px; overflow-x: auto; color: #10b981; font-weight: bold;"><code>&lt;script src="../ImdbHeatmap/script.js"&gt;&lt;/script&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var ImdbHeatmapConfig = {
+                pluginUniqueId: '3f8a9e7d-1c2b-4a5f-8e9d-0c1b2a3f4e5d'
+            };
+
+            document.querySelector('#ImdbHeatmapConfigPage')
+                .addEventListener('pageshow', function() {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ImdbHeatmapConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#EnableHeatmap').checked = config.EnableHeatmap !== false;
+                        document.querySelector('#EnableChart').checked = config.EnableChart !== false;
+                        document.querySelector('#InvertGridDefault').checked = !!config.InvertGridDefault;
+                        document.querySelector('#Language').value = config.Language || 'auto';
+                        document.querySelector('#CacheTtlHours').value = config.CacheTtlHours || 24;
+                        document.querySelector('#DatasetBaseUrl').value = config.DatasetBaseUrl || 'https://cdn.jsdelivr.net/gh/ya0903/imdb-episode-dataset@main/data/shows';
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#ImdbHeatmapConfigForm')
+                .addEventListener('submit', function(e) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ImdbHeatmapConfig.pluginUniqueId).then(function (config) {
+                        config.EnableHeatmap = document.querySelector('#EnableHeatmap').checked;
+                        config.EnableChart = document.querySelector('#EnableChart').checked;
+                        config.InvertGridDefault = document.querySelector('#InvertGridDefault').checked;
+                        config.Language = document.querySelector('#Language').value;
+                        config.CacheTtlHours = parseInt(document.querySelector('#CacheTtlHours').value, 10) || 24;
+                        config.DatasetBaseUrl = document.querySelector('#DatasetBaseUrl').value.trim();
+                        
+                        ApiClient.updatePluginConfiguration(ImdbHeatmapConfig.pluginUniqueId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+
+                    e.preventDefault();
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+</html>

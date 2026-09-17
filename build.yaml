@@ -1,16 +1,16 @@
 ---
-name: "Template"
-guid: "eb5d7894-8eef-4b36-aa6f-5d124e828ce1"
+name: "IMDb Heatmap & Chart"
+guid: "3f8a9e7d-1c2b-4a5f-8e9d-0c1b2a3f4e5d"
 version: "1.0.0.0"
-targetAbi: "10.11.0.0"
+targetAbi: "10.12.0.0"
 framework: "net9.0"
-overview: "Short description about your plugin"
+overview: "Displays IMDb episode ratings heatmap and cumulative rating chart for TV series."
 description: >
-  This is a longer description that can span more than one
-  line and include details about your plugin.
+  Jellyfin plugin that presents episode ratings as an interactive heatmap grid
+  and prints cumulative rating trend charts on TV series details pages.
 category: "General"
-owner: "jellyfin"
+owner: "tholeb"
 artifacts:
-- "Jellyfin.Plugin.Template.dll"
+- "Jellyfin.Plugin.ImdbHeatmap.dll"
 changelog: >
-  changelog
+  Initial release of IMDb Heatmap & Chart plugin.

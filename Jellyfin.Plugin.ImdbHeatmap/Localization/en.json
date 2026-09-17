@@ -1,0 +1,18 @@
+{
+  "Title": "IMDb Episodes Grid",
+  "Grid": "Grid",
+  "Chart": "Chart",
+  "Season": "Season",
+  "SeasonShort": "S",
+  "EpisodeShort": "E",
+  "EpisodeCumulative": "Cumulative Episode",
+  "ImdbRating": "IMDb Rating",
+  "Average": "Avg",
+  "Trend": "Trend",
+  "GlobalTrend": "Global Trend",
+  "InvertAxes": "Invert grid axes",
+  "NoSynopsis": "No synopsis available.",
+  "Loading": "Loading...",
+  "ViewEpisode": "View Episode",
+  "OpenOnImdb": "Open on IMDb"
+}

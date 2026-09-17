@@ -1,0 +1,212 @@
+.jf-ieg-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+    padding-bottom: 0.08rem;
+    padding-right: 0.55rem;
+    max-width: 100%;
+}
+
+.jf-ieg-grid {
+    display: grid;
+    column-gap: 0.26rem;
+    row-gap: 0.26rem;
+    align-items: stretch;
+    min-width: max-content;
+    grid-auto-rows: var(--rh);
+}
+
+.jf-ieg-cell {
+    height: var(--rh);
+    min-height: var(--rh);
+    max-height: var(--rh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 0.18rem 0.24rem;
+    line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.86rem;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.jf-ieg-season,
+.jf-ieg-rating,
+.jf-ieg-empty,
+.jf-ieg-ghost {
+    width: var(--c1);
+    min-width: var(--c1);
+    max-width: var(--c1);
+}
+
+.jf-ieg-episode {
+    width: var(--c2);
+    min-width: var(--c2);
+    max-width: var(--c2);
+}
+
+.jf-ieg-episode-compact,
+.jf-ieg-corner-compact {
+    width: var(--c1);
+    min-width: var(--c1);
+    max-width: var(--c1);
+}
+
+.jf-ieg-corner-wide {
+    width: var(--c2);
+    min-width: var(--c2);
+    max-width: var(--c2);
+}
+
+.jf-ieg-corner {
+    position: sticky;
+    left: 0;
+    z-index: 6;
+    background: var(--axis) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.jf-ieg-corner-btn {
+    cursor: pointer;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+    color: inherit;
+}
+
+.jf-ieg-corner-btn:hover {
+    background: var(--axis2) !important;
+    border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.jf-ieg-corner-icon {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+    opacity: 0.92;
+    transition: transform 0.16s ease, opacity 0.16s ease;
+    pointer-events: none;
+    color: inherit;
+}
+
+.jf-ieg-season,
+.jf-ieg-episode {
+    font-weight: 700;
+    background: var(--axis) !important;
+    font-size: 0.89rem;
+    color: inherit !important;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.jf-ieg-season:hover,
+.jf-ieg-episode:hover {
+    background: var(--axis2) !important;
+    border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.jf-ieg-sticky-left {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: var(--axis) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.jf-ieg-axis-match {
+    background: var(--axis2) !important;
+    border-color: rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.jf-ieg-rating {
+    cursor: pointer;
+    font-family: inherit !important;
+    font-weight: 700 !important;
+    font-size: 1.28rem;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    transition: filter 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    text-decoration: none !important;
+    outline: none !important;
+    color: #fff !important;
+    z-index: 1;
+    background: hsla(var(--rh, 0), var(--rs, 78%), var(--rl, 16%), var(--ra, 0.9));
+    border-color: hsla(var(--rh, 0), var(--rs, 78%), var(--rb, 26%), 0.30);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.70), 0 0 1px rgba(0, 0, 0, 0.55);
+    box-shadow: var(--rg, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+}
+
+.jf-ieg-rating:hover {
+    filter: brightness(1.36) saturate(1.42) contrast(1.12);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.jf-ieg-rating-96 {
+    filter: brightness(1.26) saturate(1.34) contrast(1.10);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.88), 0 0 1px rgba(0, 0, 0, 0.58), 0 0 5px rgba(86, 255, 72, 0.26), 0 0 10px rgba(86, 255, 72, 0.11) !important;
+}
+
+.jf-ieg-rating-97 {
+    filter: brightness(1.32) saturate(1.40) contrast(1.12);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.90), 0 0 1px rgba(0, 0, 0, 0.60), 0 0 6px rgba(146, 255, 74, 0.32), 0 0 12px rgba(146, 255, 74, 0.15) !important;
+}
+
+.jf-ieg-rating-98plus {
+    filter: brightness(1.36) saturate(1.42) contrast(1.12);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.90), 0 0 1px rgba(0, 0, 0, 0.60), 0 0 6px rgba(255, 240, 28, 0.34), 0 0 12px rgba(255, 240, 28, 0.18) !important;
+}
+
+.jf-ieg-rating-96:hover {
+    filter: brightness(1.34) saturate(1.40) contrast(1.12) !important;
+    box-shadow: 0 0 8px rgba(86, 255, 72, 0.30), 0 0 16px rgba(86, 255, 72, 0.15), 0 0 22px rgba(86, 255, 72, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.jf-ieg-rating-97:hover {
+    filter: brightness(1.40) saturate(1.46) contrast(1.13) !important;
+    box-shadow: 0 0 10px rgba(146, 255, 74, 0.36), 0 0 19px rgba(146, 255, 74, 0.20), 0 0 26px rgba(146, 255, 74, 0.11), inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.jf-ieg-rating-98plus:hover {
+    filter: brightness(1.40) saturate(1.46) contrast(1.13) !important;
+    box-shadow: 0 0 10px rgba(255, 240, 28, 0.38), 0 0 19px rgba(255, 240, 28, 0.22), 0 0 28px rgba(255, 240, 28, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.jf-ieg-empty {
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 1.02rem;
+    color: rgba(255, 255, 255, 0.76) !important;
+    text-decoration: none !important;
+    outline: none !important;
+    background: rgba(112, 112, 124, 0.18) !important;
+    border-color: rgba(220, 220, 230, 0.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.jf-ieg-empty:hover {
+    filter: brightness(1.10);
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.jf-ieg-ghost {
+    opacity: 0;
+    pointer-events: none;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 900px) {
+    .jf-ieg-scroll {
+        padding-right: 0.12rem !important;
+    }
+}
