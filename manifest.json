@@ -12,25 +12,25 @@
                 "version": "1.0.1.0",
                 "changelog": "Initial release of IMDb Heatmap & Chart plugin.\n",
                 "targetAbi": "10.12.0.0",
-                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.1.0.zip",
-                "checksum": "a51f773ff92f8df981cdcd7c40084440",
-                "timestamp": "2026-09-17T16:54:04Z"
+                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.0.0.zip",
+                "checksum": "05259ebd889595d8e2a93f7ec6b6d940",
+                "timestamp": "2026-09-17T16:12:57Z"
             },
             {
                 "version": "1.0.1.0",
                 "changelog": "Initial release of IMDb Heatmap & Chart plugin.\n",
                 "targetAbi": "10.11.0.0",
-                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.1.0.zip",
-                "checksum": "a51f773ff92f8df981cdcd7c40084440",
-                "timestamp": "2026-09-17T16:54:04Z"
+                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.0.0.zip",
+                "checksum": "05259ebd889595d8e2a93f7ec6b6d940",
+                "timestamp": "2026-09-17T16:12:57Z"
             },
             {
                 "version": "1.0.1.0",
                 "changelog": "Initial release of IMDb Heatmap & Chart plugin.\n",
                 "targetAbi": "12.0.0.0",
-                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.1.0.zip",
-                "checksum": "a51f773ff92f8df981cdcd7c40084440",
-                "timestamp": "2026-09-17T16:54:04Z"
+                "sourceUrl": "https://github.com/tholeb/jellyfin-imbd-heatmap-and-chart/releases/download/1.0.1.0/imdb-heatmap-chart_1.0.0.0.zip",
+                "checksum": "05259ebd889595d8e2a93f7ec6b6d940",
+                "timestamp": "2026-09-17T16:12:57Z"
             }
         ]
     }
