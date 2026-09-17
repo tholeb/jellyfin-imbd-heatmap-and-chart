@@ -11,7 +11,88 @@ permissions:
   packages: write
 
 jobs:
-  call:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install JPRM
+        run: pip install jprm
+
+      - name: Build Plugin Zip
+        run: |
+          mkdir -p artifacts
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          TAG_NAME="${TAG_NAME#v}"
+          if [ -z "$TAG_NAME" ]; then
+            TAG_NAME="1.0.0.0"
+          fi
+          jprm plugin build . -o artifacts -v "$TAG_NAME"
+
+      - name: Update manifest.json with JPRM
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          TAG_NAME="${TAG_NAME#v}"
+          if [ -z "$TAG_NAME" ]; then
+            TAG_NAME="1.0.0.0"
+          fi
+          ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
+          ZIP_NAME=$(basename "$ZIP_FILE")
+          PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${ZIP_NAME}"
+          jprm repo add . "$ZIP_FILE" --plugin-url "$PLUGIN_URL"
+
+      - name: Expand targetABIs for Jellyfin 10.11.X, 10.12.X, and 12.X
+        run: |
+          python3 -c "
+          import json
+
+          TARGET_ABIS = ['10.12.0.0', '10.11.0.0', '12.0.0.0']
+
+          with open('manifest.json', 'r') as f:
+              manifest = json.load(f)
+
+          for plugin in manifest:
+              new_versions = []
+              seen = set()
+              for v in plugin.get('versions', []):
+                  ver_num = v['version']
+                  source_url = v['sourceUrl']
+                  for abi in TARGET_ABIS:
+                      key = (ver_num, abi, source_url)
+                      if key not in seen:
+                          seen.add(key)
+                          v_copy = dict(v)
+                          v_copy['targetAbi'] = abi
+                          new_versions.append(v_copy)
+              plugin['versions'] = new_versions
+
+          with open('manifest.json', 'w') as f:
+              json.dump(manifest, f, indent=4)
+          "
+
+      - name: Clean up artifacts
+        run: rm -rf artifacts
+
+      - name: Commit and Push manifest.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git status
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          TAG_NAME="${TAG_NAME#v}"
+          git diff-index --quiet HEAD || (git commit -m "chore: update plugin manifest for release ${TAG_NAME}" && git push origin master)
+
+  publish:
+    needs: update-manifest
     uses: jellyfin/jellyfin-meta-plugins/.github/workflows/publish.yaml@master
     with:
       version: ${{ github.event.release.tag_name }}
