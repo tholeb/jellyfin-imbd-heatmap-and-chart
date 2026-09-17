@@ -11,7 +11,18 @@ permissions:
   packages: write
 
 jobs:
+  publish:
+    uses: jellyfin/jellyfin-meta-plugins/.github/workflows/publish.yaml@master
+    with:
+      version: ${{ github.event.release.tag_name }}
+      is-unstable: ${{ github.event.release.prerelease }}
+    secrets:
+      deploy-host: ${{ secrets.DEPLOY_HOST }}
+      deploy-user: ${{ secrets.DEPLOY_USER }}
+      deploy-key: ${{ secrets.DEPLOY_KEY }}
+
   update-manifest:
+    needs: publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -27,22 +38,44 @@ jobs:
       - name: Install JPRM
         run: pip install jprm
 
-      - name: Build Plugin Zip
+      - name: Download Published Release Zip Asset
         run: |
           mkdir -p artifacts
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
           if [ -z "$TAG_NAME" ]; then
-            TAG_NAME="1.0.0.0"
+            TAG_NAME="1.0.1.0"
           fi
-          jprm plugin build . -o artifacts -v "$TAG_NAME"
+          
+          # Fetch release asset info from GitHub API
+          RELEASE_JSON=$(curl -sH "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}")
+          
+          ASSET_URL=$(echo "$RELEASE_JSON" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          for asset in data.get('assets', []):
+              if asset['name'].endswith('.zip'):
+                  print(asset['browser_download_url'])
+                  break
+          ")
+          
+          if [ -z "$ASSET_URL" ]; then
+            echo "Error: No zip asset found in release ${TAG_NAME}"
+            exit 1
+          fi
+
+          ZIP_NAME=$(basename "$ASSET_URL")
+          echo "Downloading published asset: $ASSET_URL"
+          curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" "$ASSET_URL" -o "artifacts/${ZIP_NAME}"
+          echo "Downloaded zip MD5: $(md5sum artifacts/${ZIP_NAME})"
 
       - name: Update manifest.json with JPRM
         run: |
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
           if [ -z "$TAG_NAME" ]; then
-            TAG_NAME="1.0.0.0"
+            TAG_NAME="1.0.1.0"
           fi
           ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
           ZIP_NAME=$(basename "$ZIP_FILE")
@@ -90,14 +123,3 @@ jobs:
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
           git diff-index --quiet HEAD || (git commit -m "chore: update plugin manifest for release ${TAG_NAME}" && git push origin master)
-
-  publish:
-    needs: update-manifest
-    uses: jellyfin/jellyfin-meta-plugins/.github/workflows/publish.yaml@master
-    with:
-      version: ${{ github.event.release.tag_name }}
-      is-unstable: ${{ github.event.release.prerelease }}
-    secrets:
-      deploy-host: ${{ secrets.DEPLOY_HOST }}
-      deploy-user: ${{ secrets.DEPLOY_USER }}
-      deploy-key: ${{ secrets.DEPLOY_KEY }}
