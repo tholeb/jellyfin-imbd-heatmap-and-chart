@@ -4,6 +4,11 @@ A plugin for Jellyfin that adds an interactive episode ratings heatmap and cumul
 
 The Heatmap design is based on [Damocles-fr/jellyfin-imdb-episodes-heatmap-ratings-grid](https://github.com/Damocles-fr/jellyfin-imdb-episodes-heatmap-ratings-grid).
 
+## Screenshots
+
+<img src="https://raw.githubusercontent.com/tholeb/jellyfin-imbd-heatmap-and-chart/master/images/Heatmap.png">
+<img src="https://raw.githubusercontent.com/tholeb/jellyfin-imbd-heatmap-and-chart/master/images/Chart.png">
+
 ---
 
 ## 📦 Installation & Plugin Updates
@@ -22,4 +27,4 @@ To install and receive automatic updates directly inside Jellyfin:
 
 ## AI Usage
 
-This project is completly vibecoded. 
+This project is completly vibecoded.
