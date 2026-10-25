@@ -504,7 +504,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                             <div class="jf-ieg-body">
                                 ${loading && html`<div class="jf-ieg-status">${i18n.Loading}</div>`}
                                 ${!loading && seasonsData && !hasValidData && html`
-                                    <a class="jf-ieg-link emby-button button-link" href="https://www.imdb.com/title/${encodeURIComponent(imdbId)}/ratings/" target="_blank" rel="noopener noreferrer" is="emby-linkbutton">
+                                    <a class="jf-ieg-link emby-button button-link" href="https://www.imdb.com/title/${encodeURIComponent(imdbId)}/ratings/" target="_blank" rel="noopener noreferrer">
                                         ${i18n.Title}
                                     </a>
                                 `}
