@@ -46,6 +46,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
     };
 
     const INV_KEY = 'jf-imdb-episodes-grid-inverted-v1';
+    const I18N_KEY = 'jf-imdb-episodes-grid-i18n-v1';
     const HOVER_TOOLTIP_ID = 'jf-hover-tooltip';
 
     let scheduled = null, burst = [], runSeq = 0, lastItemId = '';
@@ -53,6 +54,17 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
     let anchorItem = '', anchorSince = 0;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const log = (...a) => console.log('[JF-IEG]', ...a);
+    const warn = (...a) => console.warn('[JF-IEG]', ...a);
+
+    // Apply the last translations we saw right away so the UI doesn't flash English first
+    try {
+        const cached = JSON.parse(localStorage.getItem(I18N_KEY) || 'null');
+        if (cached && cached.data && typeof cached.data === 'object') {
+            Object.assign(i18n, cached.data);
+            log('Applied cached translations', cached.lang);
+        }
+    } catch { }
     const q = (s, r = document) => r.querySelector(s);
     const qa = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -84,6 +96,14 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
         document.head.appendChild(link);
     }
 
+    let configPromise = null;
+    function ensurePluginConfig() {
+        if (configPromise) return configPromise;
+        if (!client()) return Promise.resolve();
+        configPromise = fetchPluginConfig();
+        return configPromise;
+    }
+
     async function fetchPluginConfig() {
         try {
             const c = client();
@@ -98,6 +118,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                     if (typeof res.InvertGridDefault === 'boolean') pluginConfig.invertGridDefault = res.InvertGridDefault;
                     if (res.Language) pluginConfig.language = res.Language;
                 }
+                log('Plugin config loaded', pluginConfig);
 
                 const userLang = (pluginConfig.language && pluginConfig.language !== 'auto')
                     ? pluginConfig.language
@@ -107,10 +128,12 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                 const transRes = await c.getJSON(transUrl);
                 if (transRes && typeof transRes === 'object') {
                     Object.assign(i18n, transRes);
+                    try { localStorage.setItem(I18N_KEY, JSON.stringify({ lang: userLang, data: transRes })); } catch { }
+                    log('Translations loaded', userLang);
                 }
             }
-        } catch {
-            // fallback defaults
+        } catch (e) {
+            warn('Failed to load plugin config/translations, using defaults', e);
         }
     }
 
@@ -472,15 +495,18 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                     setLoading(true);
                     (async () => {
                         try {
-                            await fetchPluginConfig();
+                            await ensurePluginConfig();
+                            log('Loading data', { itemId, imdbId });
                             const [jf, ds] = await Promise.all([
-                                fetchJf(itemId).catch(() => ({ seasonsByNum: {}, seasonIds: {} })),
-                                fetchDataset(imdbId).catch(() => null)
+                                fetchJf(itemId).catch(e => { warn('Jellyfin episodes request failed', e); return { seasonsByNum: {}, seasonIds: {} }; }),
+                                fetchDataset(imdbId).catch(e => { warn('IMDb dataset request failed', e); return null; })
                             ]);
+                            log('Jellyfin seasons:', Object.keys(jf.seasonsByNum || {}).length, '| dataset seasons:', ds ? ds.length : 'none');
                             const merged = mergeData(ds, jf);
+                            log('Merged data', merged);
                             setSeasonsData(merged);
                         } catch (e) {
-                            console.warn('[JF-IEG] Load error', e);
+                            warn('Load error', e);
                             setSeasonsData([]);
                         } finally {
                             setLoading(false);
@@ -491,7 +517,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
 
             const hasValidData = seasonsData && seasonsData.length > 0 && seasonsData.some(s => s.episodes.some(e => e.rating != null || e.name || e.jfId));
 
-            const toggleExpand = () => setExpanded(!expanded);
+            const toggleExpand = () => { log(expanded ? 'Collapsing' : 'Expanding', seriesName, imdbId); setExpanded(!expanded); };
 
             return html`
                 <div class="jf-ieg-box">
@@ -556,7 +582,9 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
             block.dataset.seriesName = seriesName || '';
             target.parent.insertBefore(block, target.before);
 
-            const preact = await loadPreact();
+            const [preact] = await Promise.all([loadPreact(), ensurePluginConfig()]);
+            if (!block.isConnected) return;
+            log('Mounting root', { itemId, imdbId, seriesName });
             const AppComp = createHeatmapApp(preact);
             preact.render(preact.html`<${AppComp} itemId=${itemId} imdbId=${imdbId} sid=${sid} seriesName=${seriesName} />`, block);
         } else if (block.nextSibling !== target.before) {
@@ -594,7 +622,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
         } catch (e) {
             if (client()) {
                 failedAt[itemId] = Date.now();
-                console.warn('[JF-IEG] Item request failed', e);
+                warn('Item request failed', e);
             }
             return;
         }
@@ -606,6 +634,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
         }
         const imdbId = imdbFromItem(item);
         if (!imdbId) {
+            log('Series has no IMDb id, skipping', item.Name);
             removeAll();
             hideTooltip(true);
             return;
@@ -631,7 +660,8 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
             if (target && Date.now() - anchorSince >= CFG.readyAnchorWaitMs) break;
             await sleep(CFG.pollMs);
         }
-        if (seq !== runSeq || !target) return;
+        if (seq !== runSeq) return;
+        if (!target) { log('No insert target found for', item.Name); return; }
         await mountRoot(target, itemId, imdbId, sid, item.Name || '');
     }
 
@@ -704,5 +734,10 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
     app.isPopoverPinned = () => isPopoverPinned;
     app.isMouseOverPopover = () => isMouseOverPopover;
 
+    app.log = log;
+    app.warn = warn;
+
+    log('Script loaded');
+    ensurePluginConfig();
     scheduleRun(0);
 })(window.ImdbHeatmapApp);

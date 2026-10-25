@@ -14,37 +14,38 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
         `;
     }
 
+    const RATING_COLORS = [
+        { min: 9.5, h: 210, s: 90, l: 52 },
+        { min: 9.0, h: 145, s: 72, l: 24 },
+        { min: 8.0, h: 122, s: 58, l: 44 },
+        { min: 7.0, h: 48, s: 90, l: 53 },
+        { min: 6.0, h: 25, s: 88, l: 51 },
+        { min: 5.0, h: 0, s: 78, l: 45 },
+        { min: 0, h: 275, s: 55, l: 43 }
+    ];
+
     function applyRatingStyleProperties(r) {
         const v = app.toRating(r);
         if (v == null) return {};
-        let h = 0, s = 78, l = 16;
-        if (v >= 9.5) { h = 92; s = 100; l = 51.5; }
-        else if (v >= 9.0) { h = 120; s = 100; l = 45; }
-        else if (v >= 8.0) { h = 84; s = 98; l = 30.6; }
-        else if (v >= 7.0) { h = 32; s = 88; l = 20; }
-        else if (v >= 6.0) { h = 18; s = 90; l = 19; }
-        else if (v >= 5.0) { h = 10; s = 84; l = 17; }
-        else if (v >= 4.0) { h = 6; s = 82; l = 15; }
-        else if (v >= 3.0) { h = 3; s = 80; l = 14; }
-        else if (v >= 2.0) { h = 1; s = 78; l = 13; }
-        else { h = 0; s = 76; l = 12; }
-        const frac = v % 1, lb = frac * (v >= 7 ? 7 : 3.8), light = Math.min(l + lb, v >= 7 ? 72 : 26), a = v >= 7 ? (.82 + frac * .12) : (.92 + frac * .04);
-        const borderL = Math.min(light + (v >= 7 ? 18 : 10), v >= 7 ? 85 : 34);
+        const { h, s, l } = RATING_COLORS.find(c => v >= c.min);
+        const borderL = Math.min(l + 18, 85);
         let glow = 'inset 0 1px 0 rgba(255,255,255,.06)';
-        if (v >= 9.8) glow = '0 0 8px rgba(255,240,28,.24),0 0 16px rgba(255,240,28,.12),inset 0 1px 0 rgba(255,255,255,.12)';
-        else if (v >= 9.7) glow = '0 0 8px rgba(146,255,74,.28),0 0 16px rgba(146,255,74,.13),inset 0 1px 0 rgba(255,255,255,.11)';
-        else if (v >= 9.6) glow = '0 0 6px rgba(86,255,72,.22),0 0 12px rgba(86,255,72,.10),inset 0 1px 0 rgba(255,255,255,.10)';
-        else if (v >= 9.0) glow = '0 0 5px hsla(' + h + ',' + s + '%,' + (light + 8) + '%,.28),inset 0 1px 0 rgba(255,255,255,.08)';
+        if (v >= 9.5) glow = '0 0 6px hsla(' + h + ',' + s + '%,' + (l + 10) + '%,.30),0 0 12px hsla(' + h + ',' + s + '%,' + (l + 10) + '%,.12),inset 0 1px 0 rgba(255,255,255,.10)';
 
         return {
-            '--rh': h.toString(),
+            '--rhue': h.toString(),
             '--rs': s + '%',
-            '--rl': light + '%',
-            '--ra': a.toString(),
+            '--rl': l + '%',
+            '--ra': '0.92',
             '--rb': borderL + '%',
             '--rg': glow
         };
     }
+
+    const average = eps => {
+        const rated = eps.map(e => app.toRating(e && e.rating)).filter(r => r != null);
+        return rated.length ? rated.reduce((a, b) => a + b, 0) / rated.length : null;
+    };
 
     async function initHeatmapComponent() {
         const preact = await app.loadPreact();
@@ -83,7 +84,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
 
             const allEpNums = [...new Set(seasons.flatMap(s => s.episodes.map(e => e.ep)).filter(n => Number.isFinite(n) && n > 0))].sort((a, b) => a - b);
             const gridStyle = {
-                gridTemplateColumns: inverted ? 'var(--c1) repeat(' + allEpNums.length + ', var(--c1))' : 'var(--c2) repeat(' + seasons.length + ', var(--c1))'
+                gridTemplateColumns: inverted ? 'var(--c1) repeat(' + (allEpNums.length + 1) + ', var(--c1))' : 'var(--c2) repeat(' + seasons.length + ', var(--c1))'
             };
 
             const renderSeasonHead = (s, isStickyLeft = false) => {
@@ -99,8 +100,7 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                        data-jf-axis-season=${String(s.num)}
                        data-jf-internal-id=${isJf ? s.seasonJfId : null}
                        target=${isJf ? null : '_blank'}
-                       rel=${isJf ? null : 'noopener noreferrer'}
-                       is=${isJf ? null : 'emby-linkbutton'}>
+                       rel=${isJf ? null : 'noopener noreferrer'}>
                         ${(app.i18n.SeasonShort || 'S') + s.num}
                     </a>
                 `;
@@ -153,7 +153,6 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                            data-jf-internal-id=${isJf ? ep.jfId : null}
                            target=${isJf ? null : '_blank'}
                            rel=${isJf ? null : 'noopener noreferrer'}
-                           is=${isJf ? null : 'emby-linkbutton'}
                            onMouseEnter=${handleMouseEnter}
                            onMouseLeave=${handleMouseLeave}
                            onFocus=${() => setAxisHighlight(snum, ep.ep)}
@@ -164,21 +163,15 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                     `;
                 }
 
-                let extraClass = '';
-                if (ep.rating >= 9.8) extraClass = ' jf-ieg-rating-98plus';
-                else if (ep.rating >= 9.7) extraClass = ' jf-ieg-rating-97';
-                else if (ep.rating >= 9.6) extraClass = ' jf-ieg-rating-96';
-
                 const styleObj = applyRatingStyleProperties(ep.rating);
 
                 return html`
-                    <a className=${"jf-ieg-cell jf-ieg-rating emby-button button-link" + extraClass}
+                    <a className="jf-ieg-cell jf-ieg-rating emby-button button-link"
                        style=${styleObj}
                        href=${href}
                        data-jf-internal-id=${isJf ? ep.jfId : null}
                        target=${isJf ? null : '_blank'}
                        rel=${isJf ? null : 'noopener noreferrer'}
-                       is=${isJf ? null : 'emby-linkbutton'}
                        onMouseEnter=${(e) => { setAxisHighlight(snum, ep.ep); handleMouseEnter(e); }}
                        onMouseLeave=${handleMouseLeave}
                        onFocus=${() => setAxisHighlight(snum, ep.ep)}
@@ -186,6 +179,25 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                        onClick=${handleClick}>
                         ${Number(ep.rating).toFixed(1)}
                     </a>
+                `;
+            };
+
+            const renderAvgHead = (sticky = false, compact = false) => {
+                const className = 'jf-ieg-cell jf-ieg-episode jf-ieg-avg-head' + (compact ? ' jf-ieg-episode-compact' : '') + (sticky ? ' jf-ieg-sticky-left' : '');
+                return html`<div className=${className}>${app.i18n.Average || 'Avg'}</div>`;
+            };
+
+            const renderAvgCell = s => {
+                const avg = average(s.episodes);
+                if (avg == null) {
+                    return html`<div className="jf-ieg-cell jf-ieg-empty jf-ieg-avg">-</div>`;
+                }
+                return html`
+                    <div className="jf-ieg-cell jf-ieg-rating jf-ieg-avg"
+                         style=${applyRatingStyleProperties(avg)}
+                         title=${(app.i18n.Season || 'Season') + ' ' + s.num + ' - ' + (app.i18n.Average || 'Avg') + ': ' + avg.toFixed(2)}>
+                        ${avg.toFixed(1)}
+                    </div>
                 `;
             };
 
@@ -204,11 +216,15 @@ window.ImdbHeatmapApp = window.ImdbHeatmapApp || {};
                                 ${renderEpHead(n, true, false)}
                                 ${seasons.map(s => renderCell(s.episodes.find(e => e.ep === n), s.num))}
                             `)}
+                            ${renderAvgHead(true, false)}
+                            ${seasons.map(s => renderAvgCell(s))}
                         ` : html`
                             ${allEpNums.map(n => renderEpHead(n, false, true))}
+                            ${renderAvgHead(false, true)}
                             ${seasons.map(s => html`
                                 ${renderSeasonHead(s, true)}
                                 ${allEpNums.map(n => renderCell(s.episodes.find(e => e.ep === n), s.num))}
+                                ${renderAvgCell(s)}
                             `)}
                         `}
                     </div>
