@@ -44,7 +44,7 @@ jobs:
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
           if [ -z "$TAG_NAME" ]; then
-            TAG_NAME="1.0.1.0"
+            TAG_NAME="1.0.2.0"
           fi
           
           # Fetch release asset info from GitHub API
@@ -75,7 +75,7 @@ jobs:
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
           if [ -z "$TAG_NAME" ]; then
-            TAG_NAME="1.0.1.0"
+            TAG_NAME="1.0.2.0"
           fi
           ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
           ZIP_NAME=$(basename "$ZIP_FILE")
