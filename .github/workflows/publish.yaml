@@ -30,14 +30,6 @@ jobs:
         with:
           ref: master
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install JPRM
-        run: pip install jprm
-
       - name: Download Published Release Zip Asset
         run: |
           mkdir -p artifacts
@@ -70,7 +62,7 @@ jobs:
           curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" "$ASSET_URL" -o "artifacts/${ZIP_NAME}"
           echo "Downloaded zip MD5: $(md5sum artifacts/${ZIP_NAME})"
 
-      - name: Update manifest.json with JPRM
+      - name: Add release version to manifest.json
         run: |
           TAG_NAME="${{ github.event.release.tag_name }}"
           TAG_NAME="${TAG_NAME#v}"
@@ -80,36 +72,48 @@ jobs:
           ZIP_FILE=$(ls artifacts/*.zip | head -n 1)
           ZIP_NAME=$(basename "$ZIP_FILE")
           PLUGIN_URL="https://github.com/${{ github.repository }}/releases/download/${TAG_NAME}/${ZIP_NAME}"
-          jprm repo add . "$ZIP_FILE" --plugin-url "$PLUGIN_URL"
-
-      - name: Expand targetABIs for Jellyfin 10.11.X, 10.12.X, and 12.X
-        run: |
-          python3 -c "
-          import json
+          python3 - "$ZIP_FILE" "$TAG_NAME" "$PLUGIN_URL" <<'PY'
+          import hashlib, json, sys, zipfile
 
           TARGET_ABIS = ['10.12.0.0', '10.11.0.0', '12.0.0.0']
+
+          zip_file, version, source_url = sys.argv[1:4]
+
+          with zipfile.ZipFile(zip_file) as zf:
+              meta = json.loads(zf.read('meta.json'))
+          with open(zip_file, 'rb') as f:
+              checksum = hashlib.md5(f.read()).hexdigest()
+
+          if meta['version'] != version:
+              print(f"::warning::meta.json version {meta['version']} does not match release tag {version}; using the tag")
 
           with open('manifest.json', 'r') as f:
               manifest = json.load(f)
 
-          for plugin in manifest:
-              new_versions = []
-              seen = set()
-              for v in plugin.get('versions', []):
-                  ver_num = v['version']
-                  source_url = v['sourceUrl']
-                  for abi in TARGET_ABIS:
-                      key = (ver_num, abi, source_url)
-                      if key not in seen:
-                          seen.add(key)
-                          v_copy = dict(v)
-                          v_copy['targetAbi'] = abi
-                          new_versions.append(v_copy)
-              plugin['versions'] = new_versions
+          plugin = next((p for p in manifest if p['guid'] == meta['guid']), None)
+          if plugin is None:
+              plugin = {'guid': meta['guid'], 'versions': []}
+              manifest.append(plugin)
+          for key in ('name', 'description', 'overview', 'owner', 'category'):
+              plugin[key] = meta[key]
+
+          # Keep every other version; only drop entries for this exact version (re-run of the same release)
+          versions = [v for v in plugin.get('versions', []) if v['version'] != version]
+          for abi in TARGET_ABIS:
+              versions.append({
+                  'version': version,
+                  'changelog': meta['changelog'],
+                  'targetAbi': abi,
+                  'sourceUrl': source_url,
+                  'checksum': checksum,
+                  'timestamp': meta['timestamp'],
+              })
+          versions.sort(key=lambda v: tuple(int(x) for x in v['version'].split('.')), reverse=True)
+          plugin['versions'] = versions
 
           with open('manifest.json', 'w') as f:
               json.dump(manifest, f, indent=4)
-          "
+          PY
 
       - name: Clean up artifacts
         run: rm -rf artifacts
